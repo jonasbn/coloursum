@@ -92,6 +92,7 @@ fn format_hash(hash: String) -> String {
 
             let output = c.to_string();
 
+            // TODO: I need to rewrite this flow
             u8::from_str_radix(&output, 16)
                 .map(|_ordinal|  RGB(colour.red, colour.green, colour.blue).paint(&output).to_string())
         })
