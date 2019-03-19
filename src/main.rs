@@ -3,10 +3,10 @@ use std::fmt;
 use std::fmt::Display;
 use std::io;
 use std::io::{BufRead, Write};
-use std::iter::FromIterator;
+//use std::iter::FromIterator;
 
-use ansi_term::Colour::Fixed;
-use itertools::Itertools;
+use ansi_term::Colour::RGB;
+//use itertools::Itertools;
 
 #[derive(Debug)]
 enum LineKind {
@@ -18,6 +18,13 @@ enum LineKind {
 struct Line {
     contents: String,
     kind: Option<LineKind>,
+}
+
+#[derive(Debug)]
+struct Colour {
+    red: u8,
+    green: u8,
+    blue: u8,
 }
 
 impl From<String> for Line {
@@ -66,16 +73,30 @@ fn format_hash(hash: String) -> String {
     // map over every two characters
     let result: Result<String, ParseIntError> = hash
         .chars()
-        .chunks(2)
         .into_iter()
-        .map(|byte| {
-            let ord_string = String::from_iter(byte);
-            // attempt to parse those two characters as a u8,
-            // and if that works, colour them in
-            u8::from_str_radix(&ord_string, 16)
-                .map(|ordinal| Fixed(ordinal).paint(ord_string).to_string())
+        .map(|c| {
+
+            let mut colour: Colour = Colour {
+                red: 255,
+                green: 156,
+                blue: 73
+            };
+
+            if c.is_ascii_digit() {
+                colour = Colour {
+                    red: 121,
+                    green: 176,
+                    blue: 215
+                };
+            }
+
+            let output = c.to_string();
+
+            u8::from_str_radix(&output, 16)
+                .map(|_ordinal|  RGB(colour.red, colour.green, colour.blue).paint(&output).to_string())
         })
         .collect();
+
 
     // if there was an error at any point, return the original value
     result.unwrap_or(hash)
